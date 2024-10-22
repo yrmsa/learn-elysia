@@ -26,29 +26,18 @@ export const note = new Elysia({ prefix: "/note" })
 			data: t.String(),
 		}),
 	})
-	.get(
-		"/:index",
-		({ note, params: { index } }) => {
-			return note.data[index] ?? error(404, "oh no :(");
-		},
-		{
-			params: t.Object({
-				index: t.Number(),
-			}),
-		},
-	)
-	.delete(
-		"/:index",
-		({ note, params: { index } }) => {
-			if (index in note.data) return note.remove(index);
-			return error(422);
-		},
-		{
-			params: t.Object({
-				index: t.Number(),
-			}),
-		},
-	)
+	.guard({
+		params: t.Object({
+			index: t.Number(),
+		}),
+	})
+	.get("/:index", ({ note, params: { index } }) => {
+		return note.data[index] ?? error(404, "oh no :(");
+	})
+	.delete("/:index", ({ note, params: { index } }) => {
+		if (index in note.data) return note.remove(index);
+		return error(422);
+	})
 	.patch(
 		"/:index",
 		({ note, params: { index }, body: { data }, error }) => {
@@ -56,9 +45,6 @@ export const note = new Elysia({ prefix: "/note" })
 			return error(422);
 		},
 		{
-			params: t.Object({
-				index: t.Number(),
-			}),
 			body: t.Object({
 				data: t.String(),
 			}),
